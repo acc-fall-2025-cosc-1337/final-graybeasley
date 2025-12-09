@@ -3,6 +3,8 @@
 #include "die.h"
 #include "roll.h"
 #include "shooter.h"
+#include "come_out_phase.h"
+#include "point_phase.h"
 
 TEST_CASE("Verify Test Configuration", "verification") {
 	REQUIRE(true == true);
@@ -42,5 +44,40 @@ TEST_CASE("Shooter returns Roll values from 2 to 12", "[Shooter]") {
         int val = r->roll_value();
         REQUIRE(val >= 2);
         REQUIRE(val <= 12);
+    }
+}
+
+TEST_CASE("ComeOutPhase returns natural, craps, or point", "[ComeOutPhase]") {
+    srand(time(0));
+    Die die1, die2;
+    Roll roll(die1, die2);
+    ComeOutPhase co_phase;
+
+    for(int i = 0; i < 10; i++) {
+        roll.roll_dice();
+        RollOutcome outcome = co_phase.get_outcome(&roll);
+        REQUIRE(
+            outcome == RollOutcome::natural || 
+            outcome == RollOutcome::craps || 
+            outcome == RollOutcome::point
+        );
+    }
+}
+
+TEST_CASE("PointPhase returns point, seven_out, or nopoint", "[PointPhase]") {
+    srand(time(0));
+    Die die1, die2;
+    Roll roll(die1, die2);
+    int test_point = 5;
+    PointPhase pt_phase(test_point);
+
+    for(int i = 0; i < 10; i++) {
+        roll.roll_dice();
+        RollOutcome outcome = pt_phase.get_outcome(&roll);
+        REQUIRE(
+            outcome == RollOutcome::point || 
+            outcome == RollOutcome::seven_out || 
+            outcome == RollOutcome::nopoint
+        );
     }
 }
